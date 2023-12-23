@@ -1,5 +1,7 @@
 package com.bignerdranch.android.photogallery
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
@@ -16,4 +18,11 @@ class PhotoGalleryActivity : AppCompatActivity() {
                 .commit()
         }
     }
+
+    companion object {
+        fun newIntent(context: Context): Intent
+        {
+            return Intent(context,
+                PhotoGalleryActivity::class.java)
+        } }
 }
