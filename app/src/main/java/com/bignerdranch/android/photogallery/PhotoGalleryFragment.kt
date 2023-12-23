@@ -1,11 +1,15 @@
 package com.bignerdranch.android.photogallery
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -42,7 +46,50 @@ class PhotoGalleryFragment: Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         photoGalleryViewModel = ViewModelProviders.of(this)[PhotoGalleryViewModel::class.java]
+        setHasOptionsMenu(true)
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_photo_gallery, menu)
+
+        val searchItem: MenuItem = menu.findItem(R.id.menu_item_search)
+
+        val searchView = searchItem.actionView as SearchView
+
+        searchView.apply {
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(queryText: String): Boolean
+                {
+                    Log.d(TAG, "QueryTextSubmit: $queryText")
+                    photoGalleryViewModel.fetchPhotos(queryText)
+
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    Log.d(TAG,"QueryTextChange: $newText")
+                    return false
+                }
+            })
+            setOnSearchClickListener {
+                searchView.setQuery(photoGalleryViewModel.searchTerm, false)
+            }
+        }
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_item_clear -> {
+                photoGalleryViewModel.fetchPhotos("")
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+
 
     private class PhotoHolder(itemImageView: ImageView)
         : RecyclerView.ViewHolder(itemImageView)
